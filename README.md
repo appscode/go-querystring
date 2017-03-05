@@ -1,39 +1,48 @@
-# go-querystring #
+# go-querystring
 
 go-querystring is Go library for encoding structs into URL query parameters.
+See [here](http://godoc.org/github.com/google/go-querystring/query) for original library
 
+# populate
 
-**Documentation:** <http://godoc.org/github.com/google/go-querystring/query>  
-**Build Status:** [![Build Status](https://drone.io/github.com/google/go-querystring/status.png)](https://drone.io/github.com/google/go-querystring/latest)  
+This package has been forked to add support for encoding `map[string]string` nicely.
 
-## Usage ##
+Example:
+
+1) Add `identifier` as a tag option.
 
 ```go
-import "github.com/google/go-querystring/query"
+type SubscriptionRequest struct {
+	ID        string            `url:"id"`
+	PlanID    string            `url:"plan_id"`
+	Addons    map[string]string `url:"addons,identifier"`
+}
 ```
 
-go-querystring is designed to assist in scenarios where you want to construct a
-URL using a struct that represents the URL query parameters.  You might do this
-to enforce the type safety of your parameters, for example, as is done in the
-[go-github][] library.
-
-The query package exports a single `Values()` function.  A simple example:
+2) Build your request.
 
 ```go
-type Options struct {
-  Query   string `url:"q"`
-  ShowAll bool   `url:"all"`
-  Page    int    `url:"page"`
+sub := SubscriptionRequest{
+  ID: "sub_684566688785469440",
+  PlanID: "FREE-NZD",
 }
 
-opt := Options{ "foo", true, 2 }
-v, _ := query.Values(opt)
-fmt.Print(v.Encode()) // will output: "q=foo&all=true&page=2"
+for i, data := range addons {
+  sub.Addons[strconv.Itoa(i)] = data.Code
+}
 ```
 
-[go-github]: https://github.com/google/go-github/commit/994f6f8405f052a117d2d0b500054341048fbb08
+3) Encode struct into query params.
 
-## License ##
+```go
 
-This library is distributed under the BSD-style license found in the [LICENSE](./LICENSE)
-file.
+values, err := query.Values(sub)
+if err != nil {
+	return nil, err
+}
+```
+
+4) Result
+```
+id=sub_684566688785469440&plan_id=FREE-NZD&addons[id][1]=REPORTLITE-NZD
+```
