@@ -292,8 +292,7 @@ func valueStringMapKey(v reflect.Value, opts tagOptions) (string, interface{}) {
 	if v.Kind() == reflect.Map {
 		d := v.Interface().(map[string]string)
 		for k, elem := range d {
-			mapStrKey = fmt.Sprintf("%v[%v]", mapStrKey, k)
-			mapStrVal = elem
+			return fmt.Sprintf("[%v]", k), elem
 		}
 	}
 	return mapStrKey, mapStrVal
