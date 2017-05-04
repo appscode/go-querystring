@@ -240,11 +240,8 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 
 func reflectMap(values url.Values, sv reflect.Value, name string, opts tagOptions) error {
 	for _, k := range sv.MapKeys() {
-		newKey := fmt.Sprintf("%s[%v]", name, valueString(k, opts))
-		if opts.Contains("brackets") {
-			newKey = name + "[]"
-		}
 		av := sv.MapIndex(k)
+		newKey := fmt.Sprintf("%s[%v]", name, valueString(k, opts))
 		if av.Kind() == reflect.Struct {
 			err := reflectStruct(values, av, newKey)
 			if err != nil {
