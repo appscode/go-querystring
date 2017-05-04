@@ -112,7 +112,7 @@ type Encoder interface {
 func Values(v interface{}) (url.Values, error) {
 	values := make(url.Values)
 	val := reflect.ValueOf(v)
-	for val.Kind() == reflect.Ptr {
+	if val.Kind() == reflect.Ptr {
 		if val.IsNil() {
 			return values, nil
 		}
@@ -229,6 +229,12 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 			k = name + "[]"
 		}
 		av := sv.Index(i)
+		if av.Kind() == reflect.Ptr {
+			if av.IsNil() {
+				continue
+			}
+			av = av.Elem()
+		}
 		if av.Kind() == reflect.Struct {
 			err := reflectStruct(values, av, k)
 			if err != nil {
@@ -249,6 +255,12 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 func reflectMap(values url.Values, sv reflect.Value, scope string, opts tagOptions) error {
 	for _, k := range sv.MapKeys() {
 		av := sv.MapIndex(k)
+		if av.Kind() == reflect.Ptr {
+			if av.IsNil() {
+				continue
+			}
+			av = av.Elem()
+		}
 		name := valueString(k, opts)
 		if scope != "" {
 			name = scope + "[" + name + "]"
