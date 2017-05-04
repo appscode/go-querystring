@@ -11,13 +11,13 @@ func main() {
 		Name  string  `url:"name"`
 	}
 	type Options struct {
-		Field FieldOpts         `url:"field"`
-		Arr    []FieldOpts         `url:"arr"`
+		//Field FieldOpts         `url:"field"`
+		Arr    []FieldOpts         `url:"arr,indexed"`
 	}
 	opt := Options{
-		Field: FieldOpts{
-			Name: "x",
-		},
+		//Field: FieldOpts{
+		//	Name: "x",
+		//},
 		Arr : []FieldOpts {
 			{
 				Name: "y",
