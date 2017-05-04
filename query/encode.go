@@ -21,7 +21,6 @@
 package query
 
 import (
-	"bytes"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -182,37 +181,12 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 		}
 
 		if sv.Kind() == reflect.Slice || sv.Kind() == reflect.Array {
-			var del byte
-			if opts.Contains("comma") {
-				del = ','
-			} else if opts.Contains("space") {
-				del = ' '
-			} else if opts.Contains("semicolon") {
-				del = ';'
-			}
-
-			if del != 0 {
-				s := new(bytes.Buffer)
-				first := true
-				for i := 0; i < sv.Len(); i++ {
-					if first {
-						first = false
-					} else {
-						s.WriteByte(del)
-					}
-					s.WriteString(valueString(sv.Index(i), opts))
+			for i := 0; i < sv.Len(); i++ {
+				k := fmt.Sprintf("%s[%d]", name, i)
+				if opts.Contains("brackets") {
+					k = name + "[]"
 				}
-				values.Add(name, s.String())
-			} else {
-				for i := 0; i < sv.Len(); i++ {
-					k := name
-					if opts.Contains("brackets") {
-						k = name + "[]"
-					} else if opts.Contains("indexed") {
-						k = fmt.Sprintf("%s[%d]", name, i)
-					}
-					values.Add(k, valueString(sv.Index(i), opts))
-				}
+				values.Add(k, valueString(sv.Index(i), opts))
 			}
 			continue
 		}
