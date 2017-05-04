@@ -181,13 +181,7 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 		}
 
 		if sv.Kind() == reflect.Slice || sv.Kind() == reflect.Array {
-			for i := 0; i < sv.Len(); i++ {
-				k := fmt.Sprintf("%s[%d]", name, i)
-				if opts.Contains("brackets") {
-					k = name + "[]"
-				}
-				values.Add(k, valueString(sv.Index(i), opts))
-			}
+			reflectArray(values, sv, name, opts)
 			continue
 		}
 
@@ -218,6 +212,15 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 	}
 
 	return nil
+}
+func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOptions) {
+	for i := 0; i < sv.Len(); i++ {
+		k := fmt.Sprintf("%s[%d]", name, i)
+		if opts.Contains("brackets") {
+			k = name + "[]"
+		}
+		values.Add(k, valueString(sv.Index(i), opts))
+	}
 }
 
 // valueString returns the string representation of a value.
