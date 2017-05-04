@@ -229,7 +229,7 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 			k = name + "[]"
 		}
 		av := sv.Index(i)
-		if av.Kind() == reflect.Ptr {
+		if av.Kind() == reflect.Ptr || av.Kind() == reflect.Interface {
 			if av.IsNil() {
 				continue
 			}
@@ -255,7 +255,7 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 func reflectMap(values url.Values, sv reflect.Value, scope string, opts tagOptions) error {
 	for _, k := range sv.MapKeys() {
 		av := sv.MapIndex(k)
-		if av.Kind() == reflect.Ptr {
+		if av.Kind() == reflect.Ptr || av.Kind() == reflect.Interface {
 			if av.IsNil() {
 				continue
 			}
