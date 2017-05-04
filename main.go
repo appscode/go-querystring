@@ -1,24 +1,25 @@
 package main
 
 import (
-	"github.com/google/go-querystring/query"
 	"fmt"
 	"net/url"
+
+	"github.com/google/go-querystring/query"
 )
 
 func main() {
 	type FieldOpts struct {
-		Name  string  `url:"name"`
+		Name string `url:"name"`
 	}
 	type Options struct {
 		//Field FieldOpts         `url:"field"`
-		Arr    []FieldOpts         `url:"arr,indexed"`
+		Arr []FieldOpts `url:"arr,indexed"`
 	}
 	opt := Options{
 		//Field: FieldOpts{
 		//	Name: "x",
 		//},
-		Arr : []FieldOpts {
+		Arr: []FieldOpts{
 			{
 				Name: "y",
 			},
@@ -29,6 +30,6 @@ func main() {
 	}
 	v, _ := query.Values(opt)
 	// fmt.Print(v.Encode()) // will output: "q=foo&all=true&page=2"
-	ss , _ := url.QueryUnescape(v.Encode())
+	ss, _ := url.QueryUnescape(v.Encode())
 	fmt.Print(ss) // will output: "q=foo&all=true&page=2"
 }

@@ -127,14 +127,14 @@ func Values(v interface{}) (url.Values, error) {
 		return nil, fmt.Errorf("query: Values() expects struct input. Got %v", val.Kind())
 	}
 
-	err := reflectValue(values, val, "")
+	err := reflectStruct(values, val, "")
 	return values, err
 }
 
-// reflectValue populates the values parameter from the struct fields in val.
+// reflectStruct populates the values parameter from the struct fields in val.
 // Embedded structs are followed recursively (using the rules defined in the
 // Values function documentation) breadth-first.
-func reflectValue(values url.Values, val reflect.Value, scope string) error {
+func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 	var embedded []reflect.Value
 
 	typ := val.Type()
@@ -198,7 +198,7 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 		}
 
 		if sv.Kind() == reflect.Struct {
-			reflectValue(values, sv, name)
+			reflectStruct(values, sv, name)
 			continue
 		}
 
@@ -206,20 +206,26 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 	}
 
 	for _, f := range embedded {
-		if err := reflectValue(values, f, scope); err != nil {
+		if err := reflectStruct(values, f, scope); err != nil {
 			return err
 		}
 	}
 
 	return nil
 }
+
 func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOptions) {
 	for i := 0; i < sv.Len(); i++ {
 		k := fmt.Sprintf("%s[%d]", name, i)
 		if opts.Contains("brackets") {
 			k = name + "[]"
 		}
-		values.Add(k, valueString(sv.Index(i), opts))
+		av := sv.Index(i)
+		if av.Kind() == reflect.Struct {
+			reflectStruct(values, av, k)
+		} else {
+			values.Add(k, valueString(sv.Index(i), opts))
+		}
 	}
 }
 
