@@ -123,11 +123,14 @@ func Values(v interface{}) (url.Values, error) {
 		return values, nil
 	}
 
-	if val.Kind() != reflect.Struct {
+	var err error
+	if val.Kind() == reflect.Struct {
+		err = reflectStruct(values, val, "")
+	} else if val.Kind() == reflect.Map {
+		err = reflectMap(values, val, "", tagOptions{})
+	} else {
 		return nil, fmt.Errorf("query: Values() expects struct input. Got %v", val.Kind())
 	}
-
-	err := reflectStruct(values, val, "")
 	return values, err
 }
 
