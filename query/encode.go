@@ -246,22 +246,25 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 	return nil
 }
 
-func reflectMap(values url.Values, sv reflect.Value, name string, opts tagOptions) error {
+func reflectMap(values url.Values, sv reflect.Value, scope string, opts tagOptions) error {
 	for _, k := range sv.MapKeys() {
 		av := sv.MapIndex(k)
-		newKey := fmt.Sprintf("%s[%v]", name, valueString(k, opts))
+		name := valueString(k, opts)
+		if scope != "" {
+			name = scope + "[" + name + "]"
+		}
 		if av.Kind() == reflect.Struct {
-			err := reflectStruct(values, av, newKey)
+			err := reflectStruct(values, av, name)
 			if err != nil {
 				return err
 			}
 		} else if av.Kind() == reflect.Map {
-			err := reflectMap(values, av, newKey, opts)
+			err := reflectMap(values, av, name, opts)
 			if err != nil {
 				return err
 			}
 		} else {
-			values.Add(newKey, valueString(av, opts))
+			values.Add(name, valueString(av, opts))
 		}
 	}
 	return nil
