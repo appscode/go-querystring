@@ -80,7 +80,7 @@ func TestValues_types(t *testing.T) {
 				H []bool    `url:",int,space"`
 				I []string  `url:",brackets"`
 				J []string  `url:",semicolon"`
-				K []string  `url:",numbered"`
+				K []string  `url:",indexed"`
 			}{
 				A: []string{"a", "b"},
 				B: []string{"a", "b"},
@@ -105,8 +105,8 @@ func TestValues_types(t *testing.T) {
 				"H":   {"1 0"},
 				"I[]": {"a", "b"},
 				"J":   {"a;b"},
-				"K0":  {"a"},
-				"K1":  {"b"},
+				"K[0]":  {"a"},
+				"K[1]":  {"b"},
 			},
 		},
 		{

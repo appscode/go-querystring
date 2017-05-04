@@ -189,8 +189,6 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 				del = ' '
 			} else if opts.Contains("semicolon") {
 				del = ';'
-			} else if opts.Contains("brackets") {
-				name = name + "[]"
 			}
 
 			if del != 0 {
@@ -208,8 +206,10 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 			} else {
 				for i := 0; i < sv.Len(); i++ {
 					k := name
-					if opts.Contains("numbered") {
-						k = fmt.Sprintf("%s%d", name, i)
+					if opts.Contains("brackets") {
+						k = name + "[]"
+					} else if opts.Contains("indexed") {
+						k = fmt.Sprintf("%s[%d]", name, i)
 					}
 					values.Add(k, valueString(sv.Index(i), opts))
 				}
