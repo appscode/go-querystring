@@ -234,6 +234,11 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 			if err != nil {
 				return err
 			}
+		} else if av.Kind() == reflect.Map {
+			err := reflectMap(values, av, k, opts)
+			if err != nil {
+				return err
+			}
 		} else {
 			values.Add(k, valueString(sv.Index(i), opts))
 		}
@@ -247,6 +252,11 @@ func reflectMap(values url.Values, sv reflect.Value, name string, opts tagOption
 		newKey := fmt.Sprintf("%s[%v]", name, valueString(k, opts))
 		if av.Kind() == reflect.Struct {
 			err := reflectStruct(values, av, newKey)
+			if err != nil {
+				return err
+			}
+		} else if av.Kind() == reflect.Map {
+			err := reflectMap(values, av, newKey, opts)
 			if err != nil {
 				return err
 			}
