@@ -214,7 +214,7 @@ func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 	return nil
 }
 
-func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOptions) {
+func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOptions) error {
 	for i := 0; i < sv.Len(); i++ {
 		k := fmt.Sprintf("%s[%d]", name, i)
 		if opts.Contains("brackets") {
@@ -222,11 +222,15 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 		}
 		av := sv.Index(i)
 		if av.Kind() == reflect.Struct {
-			reflectStruct(values, av, k)
+			err := reflectStruct(values, av, k)
+			if err != nil {
+				return err
+			}
 		} else {
 			values.Add(k, valueString(sv.Index(i), opts))
 		}
 	}
+	return nil
 }
 
 // valueString returns the string representation of a value.
