@@ -185,6 +185,11 @@ func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 			continue
 		}
 
+		if sv.Kind() == reflect.Map {
+			reflectMap(values, sv, name, opts)
+			continue
+		}
+
 		for sv.Kind() == reflect.Ptr {
 			if sv.IsNil() {
 				break
@@ -228,6 +233,22 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 			}
 		} else {
 			values.Add(k, valueString(sv.Index(i), opts))
+		}
+	}
+	return nil
+}
+
+func reflectMap(values url.Values, sv reflect.Value, name string, opts tagOptions) error {
+	for _, k := range sv.MapKeys() {
+		av := sv.MapIndex(k)
+		newKey := fmt.Sprintf("%s[%v]", name, valueString(k, opts))
+		if av.Kind() == reflect.Struct {
+			err := reflectStruct(values, av, newKey)
+			if err != nil {
+				return err
+			}
+		} else {
+			values.Add(newKey, valueString(av, opts))
 		}
 	}
 	return nil
