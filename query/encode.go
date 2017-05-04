@@ -191,6 +191,11 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 			continue
 		}
 
+		if sv.Type() == timeType {
+			values.Add(name, valueString(sv, opts))
+			continue
+		}
+
 		for sv.Kind() == reflect.Ptr {
 			if sv.IsNil() {
 				break
@@ -198,13 +203,16 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 			sv = sv.Elem()
 		}
 
-		if sv.Type() == timeType {
-			values.Add(name, valueString(sv, opts))
+		if sv.Kind() == reflect.Struct {
+			reflectValue(values, sv, name)
 			continue
 		}
 
-		if sv.Kind() == reflect.Struct {
-			reflectValue(values, sv, name)
+		if sv.Kind() == reflect.Map {
+			for i := 0; i < sv.Len(); i++ {
+				key, value := valueStringMapKey(sv, opts)
+				values.Add(fmt.Sprintf("%v%v", name, key), fmt.Sprintf("%v", value))
+			}
 			continue
 		}
 
@@ -245,6 +253,20 @@ func valueString(v reflect.Value, opts tagOptions) string {
 	}
 
 	return fmt.Sprint(v.Interface())
+}
+
+// valueStringMapKey returns string representations of key and value for a map
+// or nested map. Example: param[id][email], john@example.com
+func valueStringMapKey(v reflect.Value, opts tagOptions) (string, interface{}) {
+	var mapStrKey string
+	var mapStrVal interface{}
+	if v.Kind() == reflect.Map {
+		d := v.Interface().(map[string]string)
+		for k, elem := range d {
+			return fmt.Sprintf("[%v]", k), elem
+		}
+	}
+	return mapStrKey, mapStrVal
 }
 
 // isEmptyValue checks if a value should be considered empty for the purposes
