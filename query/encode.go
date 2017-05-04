@@ -222,11 +222,11 @@ func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 	return nil
 }
 
-func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOptions) error {
+func reflectArray(values url.Values, sv reflect.Value, scope string, opts tagOptions) error {
 	for i := 0; i < sv.Len(); i++ {
-		k := fmt.Sprintf("%s[%d]", name, i)
+		name := fmt.Sprintf("%s[%d]", scope, i)
 		if opts.Contains("brackets") {
-			k = name + "[]"
+			name = scope + "[]"
 		}
 		av := sv.Index(i)
 		if av.Kind() == reflect.Ptr || av.Kind() == reflect.Interface {
@@ -235,18 +235,20 @@ func reflectArray(values url.Values, sv reflect.Value, name string, opts tagOpti
 			}
 			av = av.Elem()
 		}
-		if av.Kind() == reflect.Struct {
-			err := reflectStruct(values, av, k)
+		if av.Kind() == reflect.Slice || av.Kind() == reflect.Array {
+			reflectArray(values, av, name, opts)
+		} else if av.Kind() == reflect.Struct {
+			err := reflectStruct(values, av, name)
 			if err != nil {
 				return err
 			}
 		} else if av.Kind() == reflect.Map {
-			err := reflectMap(values, av, k, opts)
+			err := reflectMap(values, av, name, opts)
 			if err != nil {
 				return err
 			}
 		} else {
-			values.Add(k, valueString(sv.Index(i), opts))
+			values.Add(name, valueString(sv.Index(i), opts))
 		}
 	}
 	return nil
@@ -265,7 +267,9 @@ func reflectMap(values url.Values, sv reflect.Value, scope string, opts tagOptio
 		if scope != "" {
 			name = scope + "[" + name + "]"
 		}
-		if av.Kind() == reflect.Struct {
+		if av.Kind() == reflect.Slice || av.Kind() == reflect.Array {
+			reflectArray(values, av, name, opts)
+		} else if av.Kind() == reflect.Struct {
 			err := reflectStruct(values, av, name)
 			if err != nil {
 				return err
