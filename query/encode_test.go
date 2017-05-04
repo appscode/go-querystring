@@ -71,42 +71,27 @@ func TestValues_types(t *testing.T) {
 			// slices and arrays
 			struct {
 				A []string
-				B []string `url:",comma"`
-				C []string `url:",space"`
 				D [2]string
-				E [2]string `url:",comma"`
-				F [2]string `url:",space"`
-				G []*string `url:",space"`
-				H []bool    `url:",int,space"`
-				I []string  `url:",brackets"`
-				J []string  `url:",semicolon"`
-				K []string  `url:",indexed"`
+				H []bool   `url:",int"`
+				I []string `url:",brackets"`
+				K []string `url:",indexed"`
 			}{
 				A: []string{"a", "b"},
-				B: []string{"a", "b"},
-				C: []string{"a", "b"},
 				D: [2]string{"a", "b"},
-				E: [2]string{"a", "b"},
-				F: [2]string{"a", "b"},
-				G: []*string{&str, &str},
 				H: []bool{true, false},
 				I: []string{"a", "b"},
-				J: []string{"a", "b"},
 				K: []string{"a", "b"},
 			},
 			url.Values{
-				"A":   {"a", "b"},
-				"B":   {"a,b"},
-				"C":   {"a b"},
-				"D":   {"a", "b"},
-				"E":   {"a,b"},
-				"F":   {"a b"},
-				"G":   {"string string"},
-				"H":   {"1 0"},
-				"I[]": {"a", "b"},
-				"J":   {"a;b"},
-				"K[0]":  {"a"},
-				"K[1]":  {"b"},
+				"A[0]": {"a"},
+				"A[1]": {"b"},
+				"D[0]": {"a"},
+				"D[1]": {"b"},
+				"H[0]": {"1"},
+				"H[1]": {"0"},
+				"I[]":  {"a", "b"},
+				"K[0]": {"a"},
+				"K[1]": {"b"},
 			},
 		},
 		{
