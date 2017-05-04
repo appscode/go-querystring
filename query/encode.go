@@ -183,6 +183,13 @@ func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 			continue
 		}
 
+		for sv.Kind() == reflect.Ptr || sv.Kind() == reflect.Interface {
+			if sv.IsNil() {
+				break
+			}
+			sv = sv.Elem()
+		}
+
 		if sv.Kind() == reflect.Slice || sv.Kind() == reflect.Array {
 			reflectArray(values, sv, name, opts)
 			continue
@@ -191,13 +198,6 @@ func reflectStruct(values url.Values, val reflect.Value, scope string) error {
 		if sv.Kind() == reflect.Map {
 			reflectMap(values, sv, name, opts)
 			continue
-		}
-
-		for sv.Kind() == reflect.Ptr {
-			if sv.IsNil() {
-				break
-			}
-			sv = sv.Elem()
 		}
 
 		if sv.Type() == timeType {
