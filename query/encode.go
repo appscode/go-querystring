@@ -235,9 +235,6 @@ func reflectValue(values url.Values, val reflect.Value, scope string) error {
 		}
 
 		if sv.Kind() == reflect.Map {
-			if opts.Contains("identifier") {
-				name = name + "[id]"
-			}
 			for i := 0; i < sv.Len(); i++ {
 				key, value := valueStringMapKey(sv, opts)
 				values.Add(fmt.Sprintf("%v%v", name, key), fmt.Sprintf("%v", value))
