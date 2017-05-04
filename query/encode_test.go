@@ -149,6 +149,53 @@ func TestValues_types(t *testing.T) {
 			nil,
 			url.Values{},
 		},
+		{
+			struct {
+				Ss []string    `url:"ss"`
+				Sa []SubNested `url:"sa"`
+			}{
+				Ss: []string{"one", "two"},
+				Sa: []SubNested{
+					{
+						Value: "one",
+					},
+					{
+						Value: "two",
+					},
+				},
+			},
+			url.Values{
+				"ss[0]":        {"one"},
+				"ss[1]":        {"two"},
+				"sa[0][value]": {"one"},
+				"sa[1][value]": {"two"},
+			},
+		},
+		{
+			struct {
+				Ssm map[string]string    `url:"ssm"`
+				Srm map[string]SubNested `url:"srm"`
+			}{
+				Ssm: map[string]string{
+					"q_1": "one",
+					"q_2": "two",
+				},
+				Srm: map[string]SubNested{
+					"k_1": {
+						Value: "one",
+					},
+					"k_2": {
+						Value: "two",
+					},
+				},
+			},
+			url.Values{
+				"ssm[q_1]":        {"one"},
+				"ssm[q_2]":        {"two"},
+				"srm[k_1][value]": {"one"},
+				"srm[k_2][value]": {"two"},
+			},
+		},
 	}
 
 	for i, tt := range tests {
