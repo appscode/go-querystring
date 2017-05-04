@@ -251,6 +251,9 @@ func reflectArray(values url.Values, sv reflect.Value, scope string, opts tagOpt
 			values.Add(name, valueString(sv.Index(i), opts))
 		}
 	}
+	if sv.Len() == 0 {
+		values.Add(scope+"[]", "")
+	}
 	return nil
 }
 
@@ -282,6 +285,9 @@ func reflectMap(values url.Values, sv reflect.Value, scope string, opts tagOptio
 		} else {
 			values.Add(name, valueString(av, opts))
 		}
+	}
+	if sv.Len() == 0 {
+		values.Add(scope+"[]", "")
 	}
 	return nil
 }
